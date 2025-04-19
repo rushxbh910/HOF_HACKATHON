@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 
 # ---- Run Ollama LLM ----
 def call_local_llm(prompt, model="gemma:2b-instruct"):
@@ -15,20 +16,54 @@ def call_local_llm(prompt, model="gemma:2b-instruct"):
 def clean_output(text):
     return text.replace("```", "").replace("**", "").strip()
 
+# ---- Load latest metrics from JSON file ----
+def load_latest_metrics(json_path):
+    if not os.path.exists(json_path):
+        raise FileNotFoundError(f"JSON file not found at: {json_path}")
+
+    with open(json_path, "r") as f:
+        runs = json.load(f)
+
+    if not runs:
+        raise ValueError("❌ No run data found in the JSON file.")
+
+    latest = sorted(runs, key=lambda x: x.get("end_time", 0), reverse=True)[0]
+    metrics = latest.get("metrics", {})
+    params  = latest.get("params", {})
+
+    return {
+        "gpu_before": metrics.get("pre_train_gpu_0_util", 0.0),
+        "gpu_after" : metrics.get("post_train_gpu_0_util", 0.0),
+        "mem_used"  : metrics.get("pre_train_gpu_0_memused", 0.0),
+        "gpu_energy": metrics.get("gpu_energy_kwh", 0.0),
+        "gpu_carbon": metrics.get("gpu_carbon_kg", 0.0),
+        "hyperparams": {
+            "lr"     : float(params.get("learning_rate", 0.001)),
+            "batch"  : int(params.get("batch_size", 64)),
+            "dropout": float(params.get("dropout", 0.1))
+        },
+        "train_f1": metrics.get("train_f1_score", 0.0),
+        "test_f1" : metrics.get("test_f1_score", 0.0)
+    }
+
 # ---- Build prompt and evaluate with LLM ----
 def evaluate_and_optimize_model(metrics):
-    prompt = f"""
+    prompt = f"""Respond ONLY with the exact lines described below—no additional text.
+
+FORMAT:
+If optimal:
+STATUS: OPTIMAL
+REASON: <brief justification>
+
+If retraining is needed:
+STATUS: RETRAIN
+SUGGESTED_HYPERPARAMS:
+<one-line JSON>
+
+### BEGIN ANALYSIS ###
 You are an ML Model Efficiency Evaluator and Optimizer.
 
-Your job is to:
-1. Evaluate if the current model configuration is OPTIMAL or needs RETRAINING.
-2. If RETRAIN is needed, suggest new hyperparameters that will:
-   - Maximize test F1 score
-   - Minimize GPU energy (kWh) and carbon (kg)
-   - Avoid GPU under/overutilization
-   - Stay within reasonable memory usage
-
-### Current Model Metrics:
+Current Model Metrics:
 - GPU Utilization Before Training: {metrics['gpu_before']}%
 - GPU Utilization After Training: {metrics['gpu_after']}%
 - GPU Memory Used: {metrics['mem_used']} MB
@@ -38,69 +73,49 @@ Your job is to:
 - Train F1 Score: {metrics['train_f1']}
 - Test F1 Score: {metrics['test_f1']}
 
-### Output Format (STRICT):
+### END ANALYSIS ###
 
-If model is optimal:
-STATUS: OPTIMAL
-REASON: <brief justification>
-
-If model needs retraining:
-STATUS: RETRAIN
-SUGGESTED_HYPERPARAMS:
-<one-line valid JSON only, no bullets, no explanation>
-Example:
-{{ "lr": 0.0007, "batch": 128, "dropout": 0.2 }}
-
-IMPORTANT:
-- Do NOT include markdown formatting, bullet points, or explanations.
-- Only output lines in this exact format.
+Provide your answer now.
 """
     return call_local_llm(prompt)
 
-# ---- Sample Metrics ----
-metrics = {
-    "gpu_before": 15,
-    "gpu_after": 60,
-    "mem_used": 7200,
-    "gpu_energy": 0.0025,
-    "gpu_carbon": 0.0011,
-    "hyperparams": {"lr": 0.001, "batch": 64, "dropout": 0.1},
-    "train_f1": 0.89,
-    "test_f1": 0.65
-}
+# ---- Main Execution ----
+if __name__ == '__main__':
+    try:
+        json_file_path = r'C:\Projects\HOF_HACKATHON\exported_gpu_runs.json'
+        metrics = load_latest_metrics(json_file_path)
 
-# ---- Call LLM and Clean Output ----
-output = evaluate_and_optimize_model(metrics)
-output = clean_output(output)
+        # debug
+        print("DEBUG: loaded metrics →", json.dumps(metrics, indent=2))
 
-print("🔎 Raw LLM Output:\n", output)
+        raw = evaluate_and_optimize_model(metrics)
+        clean = clean_output(raw)
 
-# ---- Parse Output ----
-lines = output.splitlines()
-status = "UNKNOWN"
-suggested_params = None
-reason = ""
+        print("🔎 Raw LLM Output:\n", clean)
 
-for i, line in enumerate(lines):
-    if line.strip().startswith("STATUS:"):
-        status = line.split(":", 1)[1].strip().upper()
+        # ---- Parse Output ----
+        status = "UNKNOWN"
+        reason = ""
+        suggested_params = None
 
-    elif line.strip().startswith("REASON:"):
-        reason = line.split(":", 1)[1].strip()
-
-    elif "SUGGESTED_HYPERPARAMS" in line.upper():
-        for j in range(i + 1, len(lines)):
-            candidate = lines[j].strip()
-            if candidate.startswith("{") and candidate.endswith("}"):
+        for line in clean.splitlines():
+            if line.startswith("STATUS:"):
+                status = line.split(":", 1)[1].strip().upper()
+            elif line.startswith("REASON:"):
+                reason = line.split(":", 1)[1].strip()
+            elif line.startswith("{") and line.endswith("}"):
                 try:
-                    suggested_params = json.loads(candidate)
-                    break
-                except Exception as e:
+                    suggested_params = json.loads(line)
+                except json.JSONDecodeError as e:
                     suggested_params = f"⚠️ Failed to parse JSON: {e}"
 
-# ---- Final Output ----
-print(f"\n🧠 Model Status: {status}")
-if reason:
-    print(f"📌 Reason: {reason}")
-if suggested_params:
-    print(f"🔧 Suggested Hyperparameters:\n{json.dumps(suggested_params, indent=2)}")
+        # ---- Final Output ----
+        print(f"\n🧠 Model Status: {status}")
+        if reason:
+            print(f"📌 Reason: {reason}")
+        if suggested_params:
+            print("🔧 Suggested Hyperparameters:")
+            print(json.dumps(suggested_params, indent=2))
+
+    except Exception as e:
+        print(f"Error: {e}")
