@@ -10,6 +10,7 @@ from mlflow.tracking import MlflowClient
 
 import GPUtil
 from pymongo import MongoClient
+from bson.json_util import dumps
 
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
@@ -32,10 +33,12 @@ from sklearn.ensemble import (
     GradientBoostingClassifier
 )
 
-
 # ─── MLflow setup ─────────────────────────────────────────────
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("NetworkSecurity_Models")
+
+# Path to dump full MongoDB collection to JSON
+MONGO_JSON_EXPORT_PATH = os.getenv("MONGO_JSON_EXPORT_PATH", "./exported_gpu_runs.json")
 
 
 class ModelTrainer:
@@ -88,13 +91,13 @@ class ModelTrainer:
 
     # ── export a completed MLflow run into MongoDB Atlas ───────────
     def _export_run_to_mongo(self, run_id: str):
-        """Fetch one run from MLflow and upsert it into MongoDB Atlas."""
+        """Fetch one run from MLflow and upsert it into MongoDB Atlas, then dump collection to JSON."""
         # read env‑var for URL
         mongo_url = "mongodb+srv://rb5726:Rpb7675910!@cluster0.sb9vbdu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         if not mongo_url:
             raise NetworkSecurityException("Missing MONGO_DB_URL environment variable", sys)
 
-        # hard‐coded database & collection
+        # hard‑coded database & collection
         db_name   = "RUSHXBH910"
         coll_name = "GPU_Carbon_Footprints"
 
@@ -122,6 +125,16 @@ class ModelTrainer:
         # upsert by run_id
         collection.replace_one({"run_id": run_id}, doc, upsert=True)
         logging.info(f"Exported run {run_id} → MongoDB {db_name}.{coll_name}")
+
+        # dump the entire collection to JSON
+        try:
+            docs = list(collection.find())
+            os.makedirs(os.path.dirname(MONGO_JSON_EXPORT_PATH) or '.', exist_ok=True)
+            with open(MONGO_JSON_EXPORT_PATH, "w", encoding="utf-8") as f:
+                f.write(dumps(docs, indent=2))
+            logging.info(f"Dumped MongoDB collection {db_name}.{coll_name} to {MONGO_JSON_EXPORT_PATH}")
+        except Exception as e:
+            logging.warning(f"Could not dump MongoDB collection to JSON: {e}")
 
     # ── train + log + export ─────────────────────────────────────
     def train_model(self, x_train, y_train, x_test, y_test) -> ModelTrainerArtifact:
@@ -207,7 +220,7 @@ class ModelTrainer:
                 input_example=input_example
             )
 
-        # AFTER run completes, export to MongoDB
+        # AFTER run completes, export to MongoDB + dump JSON
         run_id = run.info.run_id
         self._export_run_to_mongo(run_id)
 

@@ -1,0 +1,199 @@
+[
+  {
+    "_id": {
+      "$oid": "680336b441572cdf715a2633"
+    },
+    "run_id": "d06d8b3bbdf84e80bd838c0a0a977b4a",
+    "start_time": 1745041069605,
+    "end_time": 1745041075665,
+    "status": "FINISHED",
+    "artifact_uri": "file:///C:/Users/rushx/mlruns/1/d06d8b3bbdf84e80bd838c0a0a977b4a/artifacts",
+    "params": {
+      "model_name": "Random Forest",
+      "bootstrap": "True",
+      "ccp_alpha": "0.0",
+      "class_weight": "None",
+      "criterion": "gini",
+      "max_depth": "None",
+      "max_features": "sqrt",
+      "max_leaf_nodes": "None",
+      "max_samples": "None",
+      "min_impurity_decrease": "0.0",
+      "min_samples_leaf": "1",
+      "min_samples_split": "2",
+      "min_weight_fraction_leaf": "0.0",
+      "monotonic_cst": "None",
+      "n_estimators": "128",
+      "n_jobs": "None",
+      "oob_score": "False",
+      "random_state": "None",
+      "verbose": "1",
+      "warm_start": "False"
+    },
+    "metrics": {
+      "pre_train_gpu_0_util": 0.0,
+      "pre_train_gpu_0_memutil": 0.11370297997068882,
+      "pre_train_gpu_0_memused": 931.0,
+      "pre_train_gpu_0_memfree": 7027.0,
+      "post_train_gpu_0_util": 0.0,
+      "post_train_gpu_0_memutil": 0.11370297997068882,
+      "post_train_gpu_0_memused": 931.0,
+      "post_train_gpu_0_memfree": 7027.0,
+      "gpu_energy_kwh": 2.5106266670756866e-07,
+      "gpu_carbon_kg": 1.1925476668609512e-07,
+      "train_f1_score": 0.9926530612244898,
+      "train_precision_score": 0.9934640522875817,
+      "train_recall_score": 0.9918433931484503,
+      "test_f1_score": 0.9590867764420649,
+      "test_precision_score": 0.9555152979066023,
+      "test_recall_score": 0.9626850537416346
+    },
+    "tags": {
+      "mlflow.user": "rushx",
+      "mlflow.source.name": "main.py",
+      "mlflow.source.type": "LOCAL",
+      "mlflow.source.git.commit": "d4cb0a5f6b4ef25a76583b769dbbec2b577f8f4e",
+      "mlflow.runName": "Random Forest",
+      "mlflow.log-model.history": "[{\"run_id\": \"d06d8b3bbdf84e80bd838c0a0a977b4a\", \"artifact_path\": \"sk_model\", \"utc_time_created\": \"2025-04-19 05:37:51.205948\", \"model_uuid\": \"0b6d3c62e0e44dc6afd989e2cc44d460\", \"flavors\": {\"python_function\": {\"model_path\": \"model.pkl\", \"predict_fn\": \"predict\", \"loader_module\": \"mlflow.sklearn\", \"python_version\": \"3.12.0\", \"env\": {\"conda\": \"conda.yaml\", \"virtualenv\": \"python_env.yaml\"}}, \"sklearn\": {\"pickled_model\": \"model.pkl\", \"sklearn_version\": \"1.6.1\", \"serialization_format\": \"cloudpickle\", \"code\": null}}}]"
+    },
+    "lambda_response": {
+      "message": "Data received for run_id: d06d8b3bbdf84e80bd838c0a0a977b4a",
+      "gpu_energy": 2.5106266670756866e-07,
+      "carbon": 1.1925476668609512e-07
+    },
+    "lambda_status": "sent",
+    "sent_at": {
+      "$date": "2025-04-19T16:59:38.633Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6803dfb341572cdf715a2f1d"
+    },
+    "run_id": "a7564f1d82314921a8a39acceeb58117",
+    "start_time": 1745084340314,
+    "end_time": 1745084341595,
+    "status": "FINISHED",
+    "artifact_uri": "file:///C:/Users/rushx/mlruns/1/a7564f1d82314921a8a39acceeb58117/artifacts",
+    "params": {
+      "model_name": "RandomForest",
+      "n_estimators": "32"
+    },
+    "metrics": {
+      "pre_train_gpu_0_util": 0.0,
+      "pre_train_gpu_0_memutil": 0.11822178798241328,
+      "pre_train_gpu_0_memused": 968.0,
+      "pre_train_gpu_0_memfree": 6990.0,
+      "post_train_gpu_0_util": 0.0,
+      "post_train_gpu_0_memutil": 0.11822178798241328,
+      "post_train_gpu_0_memused": 968.0,
+      "post_train_gpu_0_memfree": 6990.0,
+      "gpu_energy_kwh": 1.8999409973621368e-07,
+      "gpu_carbon_kg": 9.024719737470149e-08,
+      "test_f1_score": 0.9580801944106926,
+      "test_precision_score": 0.9501908013657361,
+      "test_recall_score": 0.9661016949152542
+    },
+    "tags": {
+      "mlflow.user": "rushx",
+      "mlflow.source.name": "main.py",
+      "mlflow.source.type": "LOCAL",
+      "mlflow.source.git.commit": "2dfa8e63735a5a237e1dc7b5d7559ea256b76247",
+      "mlflow.runName": "RandomForest_CarbonOpt"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6803e01041572cdf715a2f22"
+    },
+    "run_id": "dd6c519452e64db2938f83263a1b56a0",
+    "start_time": 1745084433381,
+    "end_time": 1745084434511,
+    "status": "FINISHED",
+    "artifact_uri": "file:///C:/Users/rushx/mlruns/1/dd6c519452e64db2938f83263a1b56a0/artifacts",
+    "params": {
+      "model_name": "RandomForest",
+      "n_estimators": "32"
+    },
+    "metrics": {
+      "pre_train_gpu_0_util": 0.0,
+      "pre_train_gpu_0_memutil": 0.11797752808988764,
+      "pre_train_gpu_0_memused": 966.0,
+      "pre_train_gpu_0_memfree": 6992.0,
+      "post_train_gpu_0_util": 0.0,
+      "post_train_gpu_0_memutil": 0.11797752808988764,
+      "post_train_gpu_0_memused": 966.0,
+      "post_train_gpu_0_memfree": 6992.0,
+      "gpu_energy_kwh": 1.943534910678863e-07,
+      "gpu_carbon_kg": 9.231790825724599e-08,
+      "test_f1_score": 0.9517743403093721,
+      "test_precision_score": 0.9455604660506227,
+      "test_recall_score": 0.9580704254019947
+    },
+    "tags": {
+      "mlflow.user": "rushx",
+      "mlflow.source.name": "main.py",
+      "mlflow.source.type": "LOCAL",
+      "mlflow.source.git.commit": "2dfa8e63735a5a237e1dc7b5d7559ea256b76247",
+      "mlflow.runName": "RandomForest_CarbonOpt"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6803e35941572cdf715a2f51"
+    },
+    "run_id": "b8c9df061f774e63829abaf3cdfa75bc",
+    "start_time": 1745085260651,
+    "end_time": 1745085275418,
+    "status": "FINISHED",
+    "artifact_uri": "file:///C:/Users/rushx/mlruns/1/b8c9df061f774e63829abaf3cdfa75bc/artifacts",
+    "params": {
+      "model_name": "Random Forest",
+      "bootstrap": "True",
+      "ccp_alpha": "0.0",
+      "class_weight": "None",
+      "criterion": "gini",
+      "max_depth": "None",
+      "max_features": "sqrt",
+      "max_leaf_nodes": "None",
+      "max_samples": "None",
+      "min_impurity_decrease": "0.0",
+      "min_samples_leaf": "1",
+      "min_samples_split": "2",
+      "min_weight_fraction_leaf": "0.0",
+      "monotonic_cst": "None",
+      "n_estimators": "128",
+      "n_jobs": "None",
+      "oob_score": "False",
+      "random_state": "None",
+      "verbose": "1",
+      "warm_start": "False"
+    },
+    "metrics": {
+      "pre_train_gpu_0_util": 0.0,
+      "pre_train_gpu_0_memutil": 0.1074743527112848,
+      "pre_train_gpu_0_memused": 880.0,
+      "pre_train_gpu_0_memfree": 7078.0,
+      "post_train_gpu_0_util": 0.0,
+      "post_train_gpu_0_memutil": 0.1074743527112848,
+      "post_train_gpu_0_memused": 880.0,
+      "post_train_gpu_0_memfree": 7078.0,
+      "gpu_energy_kwh": 7.074033631218804e-07,
+      "gpu_carbon_kg": 3.3601659748289317e-07,
+      "train_f1_score": 0.997134670487106,
+      "train_precision_score": 0.9975429975429976,
+      "train_recall_score": 0.9967266775777414,
+      "test_f1_score": 0.9596538887211993,
+      "test_precision_score": 0.9530375699440448,
+      "test_recall_score": 0.9663627152988855
+    },
+    "tags": {
+      "mlflow.user": "rushx",
+      "mlflow.source.name": "main.py",
+      "mlflow.source.type": "LOCAL",
+      "mlflow.source.git.commit": "2dfa8e63735a5a237e1dc7b5d7559ea256b76247",
+      "mlflow.runName": "Random Forest",
+      "mlflow.log-model.history": "[{\"run_id\": \"b8c9df061f774e63829abaf3cdfa75bc\", \"artifact_path\": \"sk_model\", \"utc_time_created\": \"2025-04-19 17:54:23.274058\", \"model_uuid\": \"92d2c6d795ab421495cabe0031ab108a\", \"flavors\": {\"python_function\": {\"model_path\": \"model.pkl\", \"predict_fn\": \"predict\", \"loader_module\": \"mlflow.sklearn\", \"python_version\": \"3.12.0\", \"env\": {\"conda\": \"conda.yaml\", \"virtualenv\": \"python_env.yaml\"}}, \"sklearn\": {\"pickled_model\": \"model.pkl\", \"sklearn_version\": \"1.6.1\", \"serialization_format\": \"cloudpickle\", \"code\": null}}}]"
+    }
+  }
+]

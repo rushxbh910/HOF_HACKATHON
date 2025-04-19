@@ -1,0 +1,22 @@
+[2025-04-19 13:38:56,746] 17 root - INFO - initiate the data ingestion
+[2025-04-19 13:38:59,312] 62 root - INFO - Performed train test split on the dataframe
+[2025-04-19 13:38:59,312] 63 root - INFO - Exited the split_data_as_train_test method of data_ingestion class
+[2025-04-19 13:38:59,313] 67 root - INFO - Exporting train and test file path.
+[2025-04-19 13:38:59,387] 77 root - INFO - exported train and test file path
+[2025-04-19 13:38:59,388] 19 root - INFO - Data ingestion Completed!
+[2025-04-19 13:38:59,389] 22 root - INFO - Initiate data validation!
+[2025-04-19 13:38:59,499] 36 root - INFO - Required number of columns:2
+[2025-04-19 13:38:59,499] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 13:38:59,500] 36 root - INFO - Required number of columns:2
+[2025-04-19 13:38:59,500] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 13:38:59,728] 26 root - INFO - Data Validation Completed!
+[2025-04-19 13:38:59,728] 29 root - INFO - Initiate transformation!
+[2025-04-19 13:38:59,728] 52 root - INFO - Entered initiate_data_transformation method of DataTransformation class
+[2025-04-19 13:38:59,728] 55 root - INFO - starting data transformation!
+[2025-04-19 13:38:59,768] 38 root - INFO - entered get_data_transformer_object of transformation class
+[2025-04-19 13:38:59,768] 42 root - INFO - initialized knnimputer with {'missing_values': nan, 'n_neighbors': 3, 'weights': 'uniform'}
+[2025-04-19 13:38:59,790] 45 root - INFO - Entered the save_object method of MainUtils class
+[2025-04-19 13:38:59,794] 49 root - INFO - Exited the save_object method of MainUtils class
+[2025-04-19 13:38:59,796] 33 root - INFO - Data Transformation Completed!
+[2025-04-19 13:38:59,796] 36 root - INFO - Initiate training!
+[2025-04-19 13:39:02,558] 111 root - INFO - Exported run a7564f1d82314921a8a39acceeb58117 \u2192 MongoDB GPU_Carbon_Footprints

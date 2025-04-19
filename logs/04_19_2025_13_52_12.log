@@ -1,0 +1,27 @@
+[2025-04-19 13:52:21,306] 17 root - INFO - initiate the data ingestion
+[2025-04-19 13:52:24,391] 62 root - INFO - Performed train test split on the dataframe
+[2025-04-19 13:52:24,391] 63 root - INFO - Exited the split_data_as_train_test method of data_ingestion class
+[2025-04-19 13:52:24,392] 67 root - INFO - Exporting train and test file path.
+[2025-04-19 13:52:24,476] 77 root - INFO - exported train and test file path
+[2025-04-19 13:52:24,477] 19 root - INFO - Data ingestion Completed!
+[2025-04-19 13:52:24,478] 22 root - INFO - Initiate data validation!
+[2025-04-19 13:52:24,555] 36 root - INFO - Required number of columns:2
+[2025-04-19 13:52:24,556] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 13:52:24,556] 36 root - INFO - Required number of columns:2
+[2025-04-19 13:52:24,556] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 13:52:24,744] 26 root - INFO - Data Validation Completed!
+[2025-04-19 13:52:24,744] 29 root - INFO - Initiate transformation!
+[2025-04-19 13:52:24,745] 52 root - INFO - Entered initiate_data_transformation method of DataTransformation class
+[2025-04-19 13:52:24,745] 55 root - INFO - starting data transformation!
+[2025-04-19 13:52:24,774] 38 root - INFO - entered get_data_transformer_object of transformation class
+[2025-04-19 13:52:24,774] 42 root - INFO - initialized knnimputer with {'missing_values': nan, 'n_neighbors': 3, 'weights': 'uniform'}
+[2025-04-19 13:52:24,792] 45 root - INFO - Entered the save_object method of MainUtils class
+[2025-04-19 13:52:24,795] 49 root - INFO - Exited the save_object method of MainUtils class
+[2025-04-19 13:52:24,796] 33 root - INFO - Data Transformation Completed!
+[2025-04-19 13:52:24,797] 36 root - INFO - Initiate training!
+[2025-04-19 13:54:36,526] 127 root - INFO - Exported run b8c9df061f774e63829abaf3cdfa75bc \u2192 MongoDB RUSHXBH910.GPU_Carbon_Footprints
+[2025-04-19 13:54:36,553] 135 root - INFO - Dumped MongoDB collection RUSHXBH910.GPU_Carbon_Footprints to ./exported_gpu_runs.json
+[2025-04-19 13:54:36,557] 45 root - INFO - Entered the save_object method of MainUtils class
+[2025-04-19 13:54:36,570] 49 root - INFO - Exited the save_object method of MainUtils class
+[2025-04-19 13:54:36,570] 231 root - INFO - Model saved to Artifacts\04_19_2025_13_52_13\model_trainer\trained_model\model.pkl
+[2025-04-19 13:54:36,571] 40 root - INFO - Model Training Completed!
