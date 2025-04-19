@@ -428,5 +428,63 @@
       "mlflow.runName": "Random Forest",
       "mlflow.log-model.history": "[{\"run_id\": \"bf69b0f2a4e747f5bf2429e1b207c98d\", \"artifact_path\": \"sk_model\", \"utc_time_created\": \"2025-04-19 18:59:05.774929\", \"model_uuid\": \"fa95acc20fa24970b5f7a46d42304293\", \"flavors\": {\"python_function\": {\"model_path\": \"model.pkl\", \"predict_fn\": \"predict\", \"loader_module\": \"mlflow.sklearn\", \"python_version\": \"3.12.0\", \"env\": {\"conda\": \"conda.yaml\", \"virtualenv\": \"python_env.yaml\"}}, \"sklearn\": {\"pickled_model\": \"model.pkl\", \"sklearn_version\": \"1.6.1\", \"serialization_format\": \"cloudpickle\", \"code\": null}}}]"
     }
+  },
+  {
+    "_id": {
+      "$oid": "6803fbd641572cdf715a3103"
+    },
+    "run_id": "7334150d931d40f187e6c397d00dee73",
+    "start_time": 1745091535015,
+    "end_time": 1745091544902,
+    "status": "FINISHED",
+    "artifact_uri": "file:///C:/Users/rushx/mlruns/1/7334150d931d40f187e6c397d00dee73/artifacts",
+    "params": {
+      "model_name": "Random Forest",
+      "bootstrap": "True",
+      "ccp_alpha": "0.0",
+      "class_weight": "None",
+      "criterion": "gini",
+      "max_depth": "None",
+      "max_features": "sqrt",
+      "max_leaf_nodes": "None",
+      "max_samples": "None",
+      "min_impurity_decrease": "0.0",
+      "min_samples_leaf": "1",
+      "min_samples_split": "2",
+      "min_weight_fraction_leaf": "0.0",
+      "monotonic_cst": "None",
+      "n_estimators": "32",
+      "n_jobs": "None",
+      "oob_score": "False",
+      "random_state": "None",
+      "verbose": "1",
+      "warm_start": "False"
+    },
+    "metrics": {
+      "pre_train_gpu_0_util": 0.0,
+      "pre_train_gpu_0_memutil": 0.11150464093795799,
+      "pre_train_gpu_0_memused": 913.0,
+      "pre_train_gpu_0_memfree": 7045.0,
+      "post_train_gpu_0_util": 0.0,
+      "post_train_gpu_0_memutil": 0.11150464093795799,
+      "post_train_gpu_0_memused": 913.0,
+      "post_train_gpu_0_memfree": 7045.0,
+      "gpu_energy_kwh": 7.841613027784559e-08,
+      "gpu_carbon_kg": 3.7247661881976654e-08,
+      "train_f1_score": 0.9959644874899112,
+      "train_precision_score": 0.9959644874899112,
+      "train_recall_score": 0.9959644874899112,
+      "test_f1_score": 0.9592023603621935,
+      "test_precision_score": 0.9598859702708206,
+      "test_recall_score": 0.9585197234648231
+    },
+    "tags": {
+      "mlflow.user": "rushx",
+      "mlflow.source.name": ".\\main.py",
+      "mlflow.source.type": "LOCAL",
+      "mlflow.source.git.commit": "85e5a60267dedd99d3844b02edf19906908634cc",
+      "mlflow.runName": "Random Forest",
+      "mlflow.log-model.history": "[{\"run_id\": \"7334150d931d40f187e6c397d00dee73\", \"artifact_path\": \"sk_model\", \"utc_time_created\": \"2025-04-19 19:38:56.311262\", \"model_uuid\": \"ff00e7b057444f7a9f61cefe76de9a2d\", \"flavors\": {\"python_function\": {\"model_path\": \"model.pkl\", \"predict_fn\": \"predict\", \"loader_module\": \"mlflow.sklearn\", \"python_version\": \"3.12.0\", \"env\": {\"conda\": \"conda.yaml\", \"virtualenv\": \"python_env.yaml\"}}, \"sklearn\": {\"pickled_model\": \"model.pkl\", \"sklearn_version\": \"1.6.1\", \"serialization_format\": \"cloudpickle\", \"code\": null}}}]"
+    }
   }
 ]
