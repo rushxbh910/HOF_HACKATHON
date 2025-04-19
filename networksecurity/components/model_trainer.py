@@ -1,15 +1,20 @@
 import os
 import sys
+import time
+import subprocess
+
 import mlflow
 import mlflow.sklearn
 from mlflow.models.signature import infer_signature
+from mlflow.tracking import MlflowClient
+
 import GPUtil
+from pymongo import MongoClient
+
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
-
 from networksecurity.entity.artifact_entity import DataTransformationArtifact, ModelTrainerArtifact
 from networksecurity.entity.config_entity import ModelTrainerConfig
-
 from networksecurity.utils.main_utils.utils import (
     load_numpy_array_data,
     save_object,
@@ -21,11 +26,17 @@ from networksecurity.utils.ml_utils.model.estimator import NetworkModel
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.ensemble import (
+    RandomForestClassifier,
+    AdaBoostClassifier,
+    GradientBoostingClassifier
+)
 
-# Configure MLflow
+
+# ─── MLflow setup ─────────────────────────────────────────────
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("NetworkSecurity_Models")
+
 
 class ModelTrainer:
     def __init__(
@@ -34,15 +45,13 @@ class ModelTrainer:
         data_transformation_artifact: DataTransformationArtifact
     ):
         try:
-            self.model_trainer_config = model_trainer_config
+            self.model_trainer_config         = model_trainer_config
             self.data_transformation_artifact = data_transformation_artifact
         except Exception as e:
             raise NetworkSecurityException(e, sys)
 
+    # ── existing helpers ─────────────────────────────────────────
     def _log_metrics(self, stage: str, metrics_obj) -> None:
-        """
-        Generic MLflow metric logger: handles namedtuple or dict-like metrics.
-        """
         if hasattr(metrics_obj, "_asdict"):
             items = metrics_obj._asdict().items()
         elif hasattr(metrics_obj, "metrics"):
@@ -56,87 +65,137 @@ class ModelTrainer:
             except Exception:
                 logging.warning(f"Could not log metric {stage}_{name}: {val}")
 
-    def _log_gpu_metrics(self, stage: str) -> None:
-        """
-        Log GPU utilization and memory metrics to MLflow.
-        """
+    @staticmethod
+    def get_gpu_power_draw():
         try:
-            gpus = GPUtil.getGPUs()
-            for i, gpu in enumerate(gpus):
-                mlflow.log_metric(f"{stage}_gpu_{i}_util", gpu.load)
+            result = subprocess.check_output(
+                ['nvidia-smi', '--query-gpu=power.draw', '--format=csv,noheader,nounits']
+            )
+            return [float(p) for p in result.decode('utf-8').strip().split('\n')]
+        except Exception as e:
+            logging.warning(f"Could not fetch GPU power draw: {e}")
+            return []
+
+    def _log_gpu_metrics(self, stage: str) -> None:
+        try:
+            for i, gpu in enumerate(GPUtil.getGPUs()):
+                mlflow.log_metric(f"{stage}_gpu_{i}_util",   gpu.load)
                 mlflow.log_metric(f"{stage}_gpu_{i}_memutil", gpu.memoryUtil)
                 mlflow.log_metric(f"{stage}_gpu_{i}_memused", gpu.memoryUsed)
                 mlflow.log_metric(f"{stage}_gpu_{i}_memfree", gpu.memoryFree)
         except Exception as e:
             logging.warning(f"Could not log GPU metrics at {stage}: {e}")
 
+    # ── export a completed MLflow run into MongoDB Atlas ───────────
+    def _export_run_to_mongo(self, run_id: str):
+        """Fetch one run from MLflow and upsert it into MongoDB Atlas."""
+        # read env‑var for URL
+        mongo_url = "mongodb+srv://rb5726:Rpb7675910!@cluster0.sb9vbdu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        if not mongo_url:
+            raise NetworkSecurityException("Missing MONGO_DB_URL environment variable", sys)
+
+        # hard‐coded database & collection
+        db_name   = "RUSHXBH910"
+        coll_name = "GPU_Carbon_Footprints"
+
+        # connect to Atlas
+        client     = MongoClient(mongo_url)
+        collection = client[db_name][coll_name]
+
+        # fetch run from MLflow
+        mlc = MlflowClient()
+        run = mlc.get_run(run_id)
+        data, info = run.data, run.info
+
+        # build document
+        doc = {
+            "run_id":       run_id,
+            "start_time":   info.start_time,
+            "end_time":     info.end_time,
+            "status":       info.status,
+            "artifact_uri": info.artifact_uri,
+            "params":       data.params,
+            "metrics":      data.metrics,
+            "tags":         data.tags,
+        }
+
+        # upsert by run_id
+        collection.replace_one({"run_id": run_id}, doc, upsert=True)
+        logging.info(f"Exported run {run_id} → MongoDB {db_name}.{coll_name}")
+
+    # ── train + log + export ─────────────────────────────────────
     def train_model(self, x_train, y_train, x_test, y_test) -> ModelTrainerArtifact:
         models = {
-            "Random Forest": RandomForestClassifier(verbose=1),
-            "Decision Tree": DecisionTreeClassifier(),
-            "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+            "Random Forest":       RandomForestClassifier(verbose=1),
+            "Decision Tree":       DecisionTreeClassifier(),
+            "Gradient Boosting":   GradientBoostingClassifier(verbose=1),
             "Logistic Regression": LogisticRegression(verbose=1),
-            "AdaBoost": AdaBoostClassifier()
+            "AdaBoost":            AdaBoostClassifier()
         }
 
         params = {
-            "Decision Tree": {'criterion': ['gini', 'entropy', 'log_loss']},
-            "Random Forest": {'n_estimators': [8, 16, 32, 128, 256]},
-            "Gradient Boosting": {
-                'learning_rate': [0.1, 0.01, 0.05, 0.001],
-                'subsample': [0.6, 0.7, 0.75, 0.85, 0.9],
-                'n_estimators': [8, 16, 32, 64, 128, 256]
+            "Decision Tree":      {'criterion': ['gini','entropy','log_loss']},
+            "Random Forest":      {'n_estimators': [8,16,32,128,256]},
+            "Gradient Boosting":  {
+                'learning_rate': [0.1,0.01,0.05,0.001],
+                'subsample':     [0.6,0.7,0.75,0.85,0.9],
+                'n_estimators':  [8,16,32,64,128,256]
             },
             "Logistic Regression": {},
-            "AdaBoost": {'learning_rate': [0.1, 0.01, 0.001], 'n_estimators': [8, 16, 32, 64, 128, 256]}
+            "AdaBoost":            {'learning_rate': [0.1,0.01,0.001],
+                                     'n_estimators':  [8,16,32,64,128,256]}
         }
 
-        # Evaluate and pick best model
-        model_report = evaluate_models(
+        report    = evaluate_models(
             X_train=x_train, y_train=y_train,
-            X_test=x_test, y_test=y_test,
-            models=models, params=params
+            X_test=x_test,   y_test=y_test,
+            models=models,   params=params
         )
-        best_model_name = max(model_report, key=model_report.get)
-        best_model = models[best_model_name]
+        best_name  = max(report, key=report.get)
+        best_model = models[best_name]
 
-        # Infer signature for logging
+        # infer signature/example
         try:
-            signature = infer_signature(x_train, best_model.predict(x_train))
+            signature     = infer_signature(x_train, best_model.predict(x_train))
             input_example = x_train[:5]
-        except Exception:
-            signature = None
-            input_example = None
+        except:
+            signature, input_example = None, None
 
-        # Start MLflow run
-        with mlflow.start_run(run_name=best_model_name):
-            # Log parameters
-            mlflow.log_param("model_name", best_model_name)
+        # START MLflow run
+        with mlflow.start_run(run_name=best_name) as run:
+            mlflow.log_param("model_name", best_name)
             for p, v in best_model.get_params().items():
                 mlflow.log_param(p, v)
 
-            # Log GPU metrics pre-training
             self._log_gpu_metrics("pre_train")
 
-            # Train on GPU if supported by the model
+            t0     = time.time()
+            before = self.get_gpu_power_draw()
+
             best_model.fit(x_train, y_train)
 
-            # Log GPU metrics post-training
+            t1     = time.time()
             self._log_gpu_metrics("post_train")
+            after  = self.get_gpu_power_draw()
 
-            # Evaluate
-            y_train_pred = best_model.predict(x_train)
-            y_test_pred = best_model.predict(x_test)
-            train_metrics = get_classification_score(y_true=y_train, y_pred=y_train_pred)
-            test_metrics  = get_classification_score(y_true=y_test,  y_pred=y_test_pred)
+            avg_watts   = sum(before + after) / (len(before + after) or 1)
+            duration_hr = (t1 - t0) / 3600
+            energy_kwh  = avg_watts/1000 * duration_hr
+            carbon      = energy_kwh * 0.475
 
-            # Log metrics
-            self._log_metrics("train", train_metrics)
-            self._log_metrics("test",  test_metrics)
+            mlflow.log_metric("gpu_energy_kwh", energy_kwh)
+            mlflow.log_metric("gpu_carbon_kg", carbon)
 
-            # Log the pipeline model
+            ytr_pred = best_model.predict(x_train)
+            yte_pred = best_model.predict(x_test)
+            train_m  = get_classification_score(y_train, ytr_pred)
+            test_m   = get_classification_score(y_test,  yte_pred)
+
+            self._log_metrics("train", train_m)
+            self._log_metrics("test",  test_m)
+
             preprocessor = load_object(
-                file_path=self.data_transformation_artifact.transformed_object_file_path
+                self.data_transformation_artifact.transformed_object_file_path
             )
             pipeline = NetworkModel(preprocessor=preprocessor, model=best_model)
 
@@ -148,19 +207,20 @@ class ModelTrainer:
                 input_example=input_example
             )
 
-        # Persist locally
+        # AFTER run completes, export to MongoDB
+        run_id = run.info.run_id
+        self._export_run_to_mongo(run_id)
+
+        # save locally & return
         model_dir = os.path.dirname(self.model_trainer_config.trained_model_file_path)
         os.makedirs(model_dir, exist_ok=True)
-        save_object(
-            self.model_trainer_config.trained_model_file_path,
-            obj=pipeline
-        )
+        save_object(self.model_trainer_config.trained_model_file_path, obj=pipeline)
         logging.info(f"Model saved to {self.model_trainer_config.trained_model_file_path}")
 
         return ModelTrainerArtifact(
             trained_model_file_path=self.model_trainer_config.trained_model_file_path,
-            train_metric_artifact=train_metrics,
-            test_metric_artifact=test_metrics
+            train_metric_artifact=train_m,
+            test_metric_artifact=test_m
         )
 
     def initiate_model_trainer(self) -> ModelTrainerArtifact:
@@ -168,7 +228,7 @@ class ModelTrainer:
             train_arr = load_numpy_array_data(
                 self.data_transformation_artifact.transformed_train_file_path
             )
-            test_arr = load_numpy_array_data(
+            test_arr  = load_numpy_array_data(
                 self.data_transformation_artifact.transformed_test_file_path
             )
 

@@ -1,0 +1,26 @@
+[2025-04-19 01:26:56,985] 17 root - INFO - initiate the data ingestion
+[2025-04-19 01:26:58,298] 62 root - INFO - Performed train test split on the dataframe
+[2025-04-19 01:26:58,298] 63 root - INFO - Exited the split_data_as_train_test method of data_ingestion class
+[2025-04-19 01:26:58,299] 67 root - INFO - Exporting train and test file path.
+[2025-04-19 01:26:58,338] 77 root - INFO - exported train and test file path
+[2025-04-19 01:26:58,338] 19 root - INFO - Data ingestion Completed!
+[2025-04-19 01:26:58,339] 22 root - INFO - Initiate data validation!
+[2025-04-19 01:26:58,391] 36 root - INFO - Required number of columns:2
+[2025-04-19 01:26:58,392] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 01:26:58,392] 36 root - INFO - Required number of columns:2
+[2025-04-19 01:26:58,392] 37 root - INFO - Dataframe has columns:31
+[2025-04-19 01:26:58,501] 26 root - INFO - Data Validation Completed!
+[2025-04-19 01:26:58,501] 29 root - INFO - Initiate transformation!
+[2025-04-19 01:26:58,502] 52 root - INFO - Entered initiate_data_transformation method of DataTransformation class
+[2025-04-19 01:26:58,502] 55 root - INFO - starting data transformation!
+[2025-04-19 01:26:58,514] 38 root - INFO - entered get_data_transformer_object of transformation class
+[2025-04-19 01:26:58,514] 42 root - INFO - initialized knnimputer with {'missing_values': nan, 'n_neighbors': 3, 'weights': 'uniform'}
+[2025-04-19 01:26:58,522] 45 root - INFO - Entered the save_object method of MainUtils class
+[2025-04-19 01:26:58,524] 49 root - INFO - Exited the save_object method of MainUtils class
+[2025-04-19 01:26:58,524] 33 root - INFO - Data Transformation Completed!
+[2025-04-19 01:26:58,524] 36 root - INFO - Initiate training!
+[2025-04-19 01:27:53,517] 120 root - INFO - Exported run 1a607994ea564031aa9fcc16c5957282 \u2192 MongoDB mlflow_export.runs_metrics
+[2025-04-19 01:27:53,518] 45 root - INFO - Entered the save_object method of MainUtils class
+[2025-04-19 01:27:53,533] 49 root - INFO - Exited the save_object method of MainUtils class
+[2025-04-19 01:27:53,533] 214 root - INFO - Model saved to Artifacts\04_19_2025_01_26_52\model_trainer\trained_model\model.pkl
+[2025-04-19 01:27:53,534] 40 root - INFO - Model Training Completed!
